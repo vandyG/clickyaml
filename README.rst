@@ -6,9 +6,6 @@ clickYaml
 .. image:: https://img.shields.io/pypi/v/clickyaml.svg
         :target: https://pypi.python.org/pypi/clickyaml
 
-.. image:: https://img.shields.io/travis/vandyG/clickyaml.svg
-        :target: https://travis-ci.com/vandyG/clickyaml
-
 .. image:: https://readthedocs.org/projects/clickyaml/badge/?version=latest
         :target: https://clickyaml.readthedocs.io/en/latest/?version=latest
         :alt: Documentation Status
