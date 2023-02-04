@@ -1,5 +1,6 @@
 """Main module."""
 
+import os
 import yaml
 import re
 import sys
@@ -96,3 +97,6 @@ def parse_yaml(path=None, data=None):
     else:
         raise ValueError("Either a path or data should be defined as input")
 
+if __name__ == "__main__":
+
+    print(parse_yaml(path='/mnt/c/Users/vgoel9/OneDrive - UHG/Rules/Special/clickyaml/tests/commands.yaml'))
