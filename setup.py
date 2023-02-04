@@ -29,11 +29,6 @@ setup(
         'Programming Language :: Python :: 3.8',
     ],
     description="ClickYaml reads a `.yaml` file and creates click Commands out of it.",
-    entry_points={
-        'console_scripts': [
-            'clickyaml=clickyaml.cli:main',
-        ],
-    },
     install_requires=requirements,
     license="MIT license",
     long_description=readme + '\n\n' + history,
