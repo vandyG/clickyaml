@@ -6,14 +6,13 @@ import re
 import sys
 import click
 
-class Commander:
 
+class Commander:
     def __init__(self, parsed_yaml) -> None:
         self.parsed_yaml = parsed_yaml["commands"]
 
     @classmethod
     def create_commander(cls, path=None, data=None):
-
         loader = yaml.SafeLoader
 
         env_tag = "!ENV"
@@ -106,12 +105,11 @@ class Commander:
             raise ValueError("Either a path or data should be defined as input")
 
     def get_command(self, command_name, callback):
-
         command_dict = self.parsed_yaml[command_name]
 
         script = command_dict.pop("script") if "script" in command_dict else None
-        command = click.Command(name=command_name, callback=callback,**self.parsed_yaml[command_name])
+        command = click.Command(
+            name=command_name, callback=callback, **self.parsed_yaml[command_name]
+        )
 
         return (command, script)
-
-
