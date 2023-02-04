@@ -4,7 +4,6 @@ import yaml
 import re
 import sys
 import click
-import dotenv
 
 def parse_yaml(path=None, data=None):
 
