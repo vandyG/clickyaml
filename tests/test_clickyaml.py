@@ -6,7 +6,7 @@ import pytest
 
 from click.testing import CliRunner
 
-from clickyaml import clickyaml, commander
+from clickyaml import commander
 
 @pytest.fixture
 def cmdr():
