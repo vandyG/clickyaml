@@ -31,11 +31,44 @@ To install clickYaml, run this command in your terminal:
 
     pip install clickyaml
 
-
-Features
+Usage
 --------
 
-* TODO
+Input ``yaml`` file example:
+
+.. code-block:: yaml
+
+    commands:
+        simplecommand:
+            script: "/home/user/scripts/simplecommand.bash"
+            params:
+                - !arg
+                    param_decls: [argument]
+                - !opt
+                    param_decls: [option]
+
+        complexcommand:
+            script: "/home/user/scripts/complexcommand.bash"
+            help: "Complex Command"
+            params:
+                - !arg
+                    param_decls: [id]
+                - !arg
+                    param_decls: [type]
+                - !arg
+                    param_decls: [category]
+                    type: !obj
+                        class: click.Choice
+                        choices: ["1","2","3","ALL"]
+                        case_sensitive: False
+                - !opt
+                    param_decls: ["--email","-E"]
+                    multiple: True
+                    envvar: MY_EMAIL
+                    help: "Specify the mailing list with this option"
+
+
+
 
 Credits
 -------
