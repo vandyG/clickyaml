@@ -27,7 +27,9 @@ Installation
 ------------
 To install clickYaml, run this command in your terminal:
 
-``pip install clickyaml``
+```bash
+pip install clickyaml
+```
 
 Features
 --------
