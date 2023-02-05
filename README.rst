@@ -23,6 +23,11 @@ ClickYaml reads a `.yaml` file and creates click Commands out of it.
 * Free software: MIT license
 * Documentation: https://clickyaml.readthedocs.io.
 
+Installation
+------------
+To install clickYaml, run this command in your terminal:
+
+``pip install clickyaml``
 
 Features
 --------
