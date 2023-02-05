@@ -37,7 +37,7 @@ setup(
     include_package_data=True,
     keywords='clickyaml',
     name='clickyaml',
-    packages=find_packages(include=['clickyaml', 'clickyaml.*']),
+    packages=find_packages(include=['clickyaml', 'clickyaml.*','commander.*']),
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/vandyG/clickyaml',
