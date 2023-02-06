@@ -39,7 +39,7 @@ Input ``yaml`` file example:
                 - !arg
                     param_decls: [argument]
                 - !opt
-                    param_decls: [option]
+                    param_decls: ["--option"]
 
         complexcommand:
             script: "/home/user/scripts/complexcommand.bash"
