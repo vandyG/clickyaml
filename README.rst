@@ -71,11 +71,11 @@ Input ``yaml`` file example:
 
 - The root block needs to be named ``commands``.
 - The commands block should contain other blocks which represents each command.
-- Each command block needs to have blocks for each *parameter* of the command that you define. To know the available parameters refer to the click .. _documentation: https://click.palletsprojects.com/en/8.1.x/api/#click.Command
+- Each command block needs to have blocks for each *parameter* of the command that you define. To know the available parameters refer to the `click documentation <https://click.palletsprojects.com/en/8.1.x/api/#click.Command>`_
 - There are three types of tags that can be used in the yaml file: `!obj`, `!arg` and `!opt`
 - **!obj** can be used to create custom objects
-- **!arg** can be used to create `click.Argument` objects
-- **!opt** can be used to create `click.Option` objects
+- **!arg** can be used to create ``click.Argument`` objects
+- **!opt** can be used to create ``click.Option`` objects
 
 Converting the yaml data to ``click.Command`` using the ``Commander`` object
 
