@@ -11,12 +11,6 @@ clickYaml
         :alt: Documentation Status
 
 
-.. image:: https://pyup.io/repos/github/vandyG/clickyaml/shield.svg
-     :target: https://pyup.io/repos/github/vandyG/clickyaml/
-     :alt: Updates
-
-
-
 ClickYaml reads a `.yaml` file and creates click Commands out of it.
 
 
