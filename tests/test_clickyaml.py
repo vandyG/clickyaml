@@ -16,18 +16,22 @@ def yaml_str():
     """
     yaml_str = """
     commands:
-        adhoc:
-            script: "nohup /home/user/script/source/run_adhoc.scr"
-            help: "Invokes an adhoc run for SAS ABPs. Requires three parameters ABP ID, Analytic Type and LOB/Platform. ABP ID should just be without the 'abp' prefix."
+        simplecommand:
+            script: "/home/user/scripts/simplecommand.bash"
+            params:
+                - !arg
+                    param_decls: [argument]
+                - !opt
+                    param_decls: ["--option"]
+
+        complexcommand:
+            script: "/home/user/scripts/complexcommand.bash"
+            help: "Complex Command"
             params:
                 - !arg
                     param_decls: [id]
                 - !arg
                     param_decls: [type]
-                    type: !obj
-                        class: click.Choice
-                        choices: ["a", "b"]
-                        case_sensitive: False
                 - !arg
                     param_decls: [category]
                     type: !obj
@@ -63,20 +67,31 @@ def test_parse_yaml(yaml_str):
 
     assert all(isinstance(key, str) for key in cmdr.parsed_yaml.keys())
     assert all(isinstance(value, dict) for value in cmdr.parsed_yaml.values())
-    assert "adhoc" in cmdr.parsed_yaml
-    assert "script" in cmdr.parsed_yaml["adhoc"]
-    assert "help" in cmdr.parsed_yaml["adhoc"]
-    assert "params" in cmdr.parsed_yaml["adhoc"]
+    assert "simplecommand" in cmdr.parsed_yaml
+    assert "complexcommand" in cmdr.parsed_yaml
+    assert "script" in cmdr.parsed_yaml["simplecommand"]
+    assert "script" in cmdr.parsed_yaml["complexcommand"]
+    assert "help" not in cmdr.parsed_yaml["simplecommand"]
+    assert "help" in cmdr.parsed_yaml["complexcommand"]
+    assert "params" in cmdr.parsed_yaml["simplecommand"]
+    assert "params" in cmdr.parsed_yaml["complexcommand"]
 
 def test_get_command(yaml_str):
 
     cmdr = commander.Commander.create_commander(data=yaml_str)
 
-    command, script = cmdr.get_command("adhoc", lambda id, type, category, email : print("hello"))
-    assert "adhoc" == command.name
-    assert "run_adhoc.scr" in script
+    command1, script1 = cmdr.get_command("simplecommand", lambda **kwargs : print("Simple Command"))
+    command2, script2 = cmdr.get_command("complexcommand", lambda **kwargs : print("Complex Command"))
+    assert "simplecommand" == command1.name
+    assert "complexcommand" == command2.name
+    assert "simplecommand.bash" in script1
+    assert "complexcommand.bash" in script2
 
     runner = CliRunner()
-    result = runner.invoke(command, ["4402", "a","all"])
-    assert "hello" in result.output
+    result = runner.invoke(command1, ["arg", "--option=opt"])
+    assert "Simple" in result.output
+    assert result.exit_code == 0
+
+    result = runner.invoke(command2, ["id", "type", "all","--email=test@test.com"])
+    assert "Complex" in result.output
     assert result.exit_code == 0
