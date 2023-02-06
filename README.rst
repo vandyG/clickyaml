@@ -67,7 +67,25 @@ Input ``yaml`` file example:
                     envvar: MY_EMAIL
                     help: "Specify the mailing list with this option"
 
+**Note**: There are certain rules on the structure of the yaml file:
+- The root block needs to be named ``commands``.
+- The commands block should contain other blocks which represents each command.
+- Each command block needs to have blocks for each *parameter* of the command that you define. To know the available parameters refer to the click documentation_https://click.palletsprojects.com/en/8.1.x/api/#click.Command
+- There are three types of tags that can be used in the yaml file: `!obj`, `!arg` and `!opt`
+- `!obj` can be used to create custom objects
+- `!arg` can be used to create `click.Argument` objects
+- `!opt` can be used to create `click.Option` objects
 
+Converting the yaml data to ``click.Command`` using the ``Commander`` object
+
+.. code-block:: python
+
+    from clickyaml import Commander
+
+    commander = Commander.create_commander(path=yaml_str)
+    # pass any callback(function) that takes in all the Arguments and Options of the command
+    # as parameters.
+    simplecmd = commander.get_command("simplecommand", lambda **kwargs: print("Simple Command"))
 
 
 Credits
