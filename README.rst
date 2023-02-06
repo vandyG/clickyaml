@@ -68,6 +68,7 @@ Input ``yaml`` file example:
                     help: "Specify the mailing list with this option"
 
 **Note**: There are certain rules on the structure of the yaml file:
+
 - The root block needs to be named ``commands``.
 - The commands block should contain other blocks which represents each command.
 - Each command block needs to have blocks for each *parameter* of the command that you define. To know the available parameters refer to the click documentation_https://click.palletsprojects.com/en/8.1.x/api/#click.Command
