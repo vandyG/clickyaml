@@ -6,7 +6,6 @@ import re
 import sys
 import click
 
-
 class Commander:
     def __init__(self, parsed_yaml) -> None:
         self.parsed_yaml = parsed_yaml["commands"]
@@ -104,12 +103,66 @@ class Commander:
         else:
             raise ValueError("Either a path or data should be defined as input")
 
-    def get_command(self, command_name, callback):
+    def get_command(self, command_name, callback=None):
         command_dict = self.parsed_yaml[command_name]
 
         script = command_dict.pop("script") if "script" in command_dict else None
+
+        params_in_order = [value.human_readable_name for value in command_dict["params"]]
+
         command = click.Command(
-            name=command_name, callback=callback, **self.parsed_yaml[command_name]
+            name=command_name, **self.parsed_yaml[command_name]
         )
 
+        def default_callback(**kwargs):
+            from subprocess import Popen
+
+            args = [kwargs[key.lower()] for key in params_in_order]
+
+            Popen(script.split() + args, text=True)
+
+        if not callback:
+            command.callback = default_callback
+        else:
+            command.callback = callback
+
         return (command, script)
+
+if __name__ == "__main__":
+    yaml_str = """
+    commands:
+        simplecommand:
+            script: "nohup /home/vandy/hasasfaa/aalrprg/util/adhoc_driver/source/simplecommand.bash"
+            params:
+                - !arg
+                    param_decls: ["myarg"]
+                - !opt
+                    param_decls: ["--myopt","-o"]
+
+        complexcommand:
+            script: "/home/user/scripts/complexcommand.bash"
+            help: "Complex Command"
+            params:
+                - !arg
+                    param_decls: [id]
+                - !arg
+                    param_decls: [type]
+                - !arg
+                    param_decls: [category]
+                    type: !obj
+                        class: click.Choice
+                        choices: ["1","2","3","ALL"]
+                        case_sensitive: False
+                - !opt
+                    param_decls: ["--email","-E"]
+                    multiple: True
+                    envvar: MY_EMAIL
+                    help: "Specify the mailing list with this option"
+    """
+    cmdr = Commander.create_commander(data=yaml_str)
+    cmd, scr = cmdr.get_command("simplecommand", lambda **kwargs: print("Hello"))
+    # print(cmdr.parsed_yaml)
+    from click.testing import CliRunner
+    runner = CliRunner()
+    result = runner.invoke(cmd,["arg","--myopt=option"])
+    print(result.output)
