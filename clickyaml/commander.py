@@ -86,8 +86,8 @@ class Commander:
             values = loader.construct_mapping(node)
             mdl_cls = values.pop("class").split(".")
             module = mdl_cls[0]
-            cls = mdl_cls[1]
-            return getattr(sys.modules[module], cls)(**values)
+            my_cls = mdl_cls[1]
+            return getattr(sys.modules[module], my_cls)(**values)
 
         loader.add_constructor("!ENV", construct_env_vars)
         loader.add_constructor("!obj", construct_objects)
