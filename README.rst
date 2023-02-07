@@ -10,6 +10,9 @@ clickYaml
         :target: https://clickyaml.readthedocs.io/en/latest/?version=latest
         :alt: Documentation Status
 
+.. image:: https://github.com/vandyG/clickyaml/actions/workflows/python-package.yml/badge.svg?event=push
+        :target: https://github.com/vandyG/clickyaml/actions/workflows/python-package.yml/badge.svg
+
 
 ClickYaml reads a `.yaml` file and creates click Commands out of it.
 
