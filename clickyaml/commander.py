@@ -5,6 +5,7 @@ import yaml
 import re
 import sys
 import click
+from re import split
 
 class Commander:
     def __init__(self, parsed_yaml) -> None:
@@ -115,11 +116,13 @@ class Commander:
         )
 
         def default_callback(**kwargs):
-            from subprocess import Popen
+            from subprocess import Popen,run
 
             args = [kwargs[key.lower()] for key in params_in_order]
 
-            Popen(script.split() + args, text=True)
+            scr = split(r"(?<!\\)\s", script)
+
+            Popen(scr + args, text=True)
 
         if not callback:
             command.callback = default_callback
@@ -127,3 +130,49 @@ class Commander:
             command.callback = callback
 
         return (command, script)
+
+
+if __name__ == "__main__":
+    yaml_str = """
+    commands:
+        simplecommand:
+            script: "nohup /mnt/c/Users/vgoel9/OneDrive\ -\ UHG/Rules/temp/scripts/simplecommand.bash"
+            params:
+                - !arg
+                    param_decls: [argument]
+                - !opt
+                    param_decls: ["--option"]
+                - !arg
+                    param_decls: ["argument2"]
+
+        complexcommand:
+            script: "/home/user/scripts/complexcommand.bash"
+            help: "Complex Command"
+            params:
+                - !arg
+                    param_decls: [id]
+                - !arg
+                    param_decls: [type]
+                - !arg
+                    param_decls: [category]
+                    type: !obj
+                        class: click.Choice
+                        choices: ["1","2","3","ALL"]
+                        case_sensitive: False
+                - !opt
+                    param_decls: ["--email","-E"]
+                    multiple: True
+                    envvar: MY_EMAIL
+                    help: "Specify the mailing list with this option"
+    """
+
+    import re
+    from click.testing import CliRunner
+
+    cmdr = Commander.create_commander(data=yaml_str)
+    cmd, scr = cmdr.get_command("simplecommand")
+
+    runner = CliRunner()
+
+    result = runner.invoke(cmd,["arg1","arg2","--option=opt"])
+    print(result.output)
