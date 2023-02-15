@@ -1,7 +1,7 @@
 """Main module."""
 
-import pathlib
-from typing import Any
+from pathlib import Path
+from typing import Any, Callable
 from clickyaml.commander import Commander
 import yaml
 import re
@@ -127,7 +127,7 @@ def construct_objects(loader: yaml.Loader, node: yaml.MappingNode):
 
 
 def parse_yaml(
-    path: str | pathlib.Path | None = None, data: str | None = None
+    path: str | Path | None = None, data: str | None = None
 ) -> dict[str, dict]:
     """Parses a yaml files and loads it into a python dictionary
 
@@ -135,7 +135,7 @@ def parse_yaml(
         - **!arg**: converts the yaml node to ``click.Argument`` object
         - **!opt**: converts the yaml node to ``click.Option`` object
         - **!obj**: converts the yaml node to the specified class object
-        - **!env**: replaces the environment variables with the associated values.
+        - **!env**: replaces the environment variables with the associated values
 
     :param path: Defines the path to the yaml file that needs to be parsed, defaults to None
     :type path: str | pathlib.Path | None, optional
@@ -164,66 +164,38 @@ def parse_yaml(
         raise ValueError("Either a path or data should be defined as input")
 
 
-if __name__ == "__main__":
-    yaml_str = """
-    simplecommand:
-        script: "nohup /mnt/c/Users/vgoel9/OneDrive\ -\ UHG/Rules/temp/scripts/simplecommand.bash"
-        params:
-            - !arg
-                param_decls: [argument]
-            - !opt
-                param_decls: ["--option"]
-            - !arg
-                param_decls: ["argument2"]
+def get_command(
+    name: str, parsed_yaml: dict[str, Any], callback: Callable | None = None
+) -> click.Command:
+    """Returns the desired command from the yaml file
 
-    complexcommand:
-        script: "/home/user/scripts/complexcommand.bash"
-        help: "Complex Command"
-        params:
-            - !arg
-                param_decls: [id]
-            - !arg
-                param_decls: [type]
-            - !arg
-                param_decls: [category]
-                type: !obj
-                    class: click.Choice
-                    choices: ["1","2","3","ALL"]
-                    case_sensitive: False
-            - !opt
-                param_decls: ["--email","-E"]
-                multiple: True
-                envvar: MY_EMAIL
-                help: "Specify the mailing list with this option"
+    :param name: Name of the command.
+    :type name: str
+    :param parsed_yaml: Dictionary from the parsed yaml of the command.
+        Contains the parameters to be passed to the click constructor
+    :type parsed_yaml: str
+    :param callback: The callback to invoke on running the command, defaults to None
+    :type callback: Callable | None, optional
+    :return: The click command with desired parameters.
+    :rtype: click.Command
     """
 
-    import re
-    from click.testing import CliRunner
+    cmdr = Commander(name=name, parsed_yaml=parsed_yaml)
+    cmdr.callback = callback
 
-    # cmdr1 = Commander()
-    # cmdr2 = Commander()
+    return cmdr.command
 
-    # print(cmdr1.parsed_yaml)
-    # print(cmdr2.parsed_yaml)
 
-    # cmdr1.parsed_yaml = {"test": "test"}
+def get_commands(yaml: str) -> dict[str, click.Command]:
+    if Path(yaml).exists():
+        parsed_yaml = parse_yaml(path=yaml)
+    else:
+        parsed_yaml = parse_yaml(data=yaml)
 
-    # print(cmdr1.parsed_yaml)
-    # print(cmdr2.parsed_yaml)
-    # cmdr = Commander.create_commander(data=yaml_str)
-    # cmd, scr = cmdr.get_command("simplecommand")
+    commands = {}
 
-    # runner = CliRunner()
+    for command, params in parsed_yaml.items():
+        cmdr = Commander(name=command, parsed_yaml=params)
+        commands[command] = cmdr.command
 
-    # result = runner.invoke(cmd,["arg1","arg2","--option=opt"])
-    # print(result.output)
-    from commander import Commander
-
-    yml = parse_yaml(data=yaml_str)
-    print(yml)
-    print(type(yml))
-    print(set(type(key) for key in yml.keys()))
-    print(set(type(value) for value in yml.values()))
-
-    cmdr = Commander(name="simplecommand",parsed_yaml = yml["simplecommand"])
-    print(cmdr)
+    return commands
