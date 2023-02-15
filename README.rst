@@ -10,7 +10,7 @@ clickYaml
         :target: https://clickyaml.readthedocs.io/en/latest/?version=latest
         :alt: Documentation Status
 
-.. image:: https://github.com/vandyG/clickyaml/actions/workflows/python-package.yml/badge.svg?event=push&?branch=redesign
+.. image:: https://github.com/vandyG/clickyaml/actions/workflows/python-package.yml/badge.svg?event=push&branch=redesign
         :target: https://github.com/vandyG/clickyaml/actions/workflows/python-package.yml/badge.svg
 
 
