@@ -1,5 +1,6 @@
 """Main module."""
 
+import errno
 from pathlib import Path
 from typing import Any, Callable
 from clickyaml.commander import Commander
@@ -180,14 +181,23 @@ def get_command(
     :rtype: click.Command
     """
 
-    cmdr = Commander(name=name, parsed_yaml=parsed_yaml)
-    cmdr.callback = callback
+    cmdr = Commander(name=name, parsed_yaml=parsed_yaml[name])
+
+    if callback:
+        cmdr.callback = callback
 
     return cmdr.command
 
 
 def get_commands(yaml: str) -> dict[str, click.Command]:
-    if Path(yaml).exists():
+
+    try:
+        is_file =  Path(yaml).is_file()
+    except OSError as oserror:
+        if oserror.errno == errno.ENAMETOOLONG:
+            is_file = False
+
+    if is_file:
         parsed_yaml = parse_yaml(path=yaml)
     else:
         parsed_yaml = parse_yaml(data=yaml)

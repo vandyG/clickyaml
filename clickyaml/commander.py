@@ -38,7 +38,7 @@ class Commander:
     def __default_callback__(self, **kwargs) -> None:
         """The default callback assigned to the click command."""
         script_parms = self.script.split()
-        params_in_order = [kwargs[key.lower()] for key in self.parsed_yaml["params"]]
+        params_in_order = [kwargs[value.human_readable_name.lower()] for value in self.parsed_yaml["params"]]
 
         Popen(script_parms + params_in_order, text=True)
 
