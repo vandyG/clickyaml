@@ -128,7 +128,7 @@ def construct_objects(loader: yaml.Loader, node: yaml.MappingNode):
 
 
 def parse_yaml(
-    path: str | Path | None = None, data: str | None = None
+    path = None, data = None
 ) -> dict[str, dict]:
     """Parses a yaml files and loads it into a python dictionary
 
@@ -166,7 +166,7 @@ def parse_yaml(
 
 
 def get_command(
-    name: str, parsed_yaml: dict[str, Any], callback: Callable | None = None
+    name: str, parsed_yaml: dict[str, Any], callback = None
 ) -> click.Command:
     """Returns the desired command from the yaml file
 
