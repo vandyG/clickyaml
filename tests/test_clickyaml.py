@@ -75,9 +75,28 @@ def test_parse_yaml(yaml_str):
     assert comp_params_count == 4
 
 
-
-
 def test_get_command(yaml_str):
+
+    parsed = clickyaml.parse_yaml(data=yaml_str)
+    simp = clickyaml.get_command("simplecommand",parsed_yaml=parsed, callback=lambda **kwargs: print(kwargs))
+    comp = clickyaml.get_command("complexcommand",parsed_yaml=parsed,callback=lambda **kwargs: print(kwargs))
+
+    runner = CliRunner()
+
+    result = runner.invoke(simp, ["arg", "--option=opt"])
+    assert "arg" in result.output
+    assert "opt" in result.output
+    assert result.exit_code == 0
+
+    result = runner.invoke(comp, ["id", "type", "all","--email=test@test.com"])
+    assert "id" in result.output
+    assert "type" in result.output
+    assert "ALL" in result.output
+    assert "test@test.com" in result.output
+    assert result.exit_code == 0
+
+
+def test_get_commands(yaml_str):
 
     commands = clickyaml.get_commands(yaml_str)
 
@@ -88,6 +107,7 @@ def test_get_command(yaml_str):
     comp.callback = lambda **kwargs: print(kwargs)
 
     runner = CliRunner()
+
     result = runner.invoke(simp, ["arg", "--option=opt"])
     assert "arg" in result.output
     assert "opt" in result.output
