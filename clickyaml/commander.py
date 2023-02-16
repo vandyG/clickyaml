@@ -21,7 +21,7 @@ class Commander:
     name: str
     parsed_yaml: dict
     script: str = field(init=False, default="")
-    _callback = field(repr=False, default=None, init=False)
+    _callback: Any = field(repr=False, default=None, init=False)
     _command: click.Command = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
