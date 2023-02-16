@@ -1,129 +1,73 @@
-"""Main module."""
-
-import os
-import yaml
-import re
-import sys
+from dataclasses import dataclass, field
+from subprocess import Popen
+from typing import Any
+from typing import Callable
 import click
 
+
+@dataclass()
 class Commander:
-    def __init__(self, parsed_yaml) -> None:
-        self.parsed_yaml = parsed_yaml["commands"]
+    """Commander class takes in a parsed yaml and creates commands out of it.
+    The *parsed_yaml* needs to be a dictionary of commands, and the *name* parameter
+    is used to fetch the required information for the command.
 
-    @classmethod
-    def create_commander(cls, path=None, data=None):
-        loader = yaml.SafeLoader
+    :param name: Name of the command to create. It's value is used to fetch the parameters
+        out of the parsed yaml and is also used to create a command of the same *name*
+    :type name: str
+    :param parsed_yaml: Dictionary of commands, can include one or more commands.
+    :type parsed_yaml: dict
+    """
 
-        env_tag = "!ENV"
-        env_pattern = re.compile(".*?\\${(\\w+)}.*?")
+    name: str
+    parsed_yaml: dict
+    script: str = field(init=False, default="")
+    _callback: Any = field(repr=False, default=None, init=False)
+    _command: click.Command = field(init=False, repr=False)
 
-        def construct_env_vars(loader: yaml.Loader, node: yaml.Node):
-            """Extracts the environment variable from the node's value
-
-            :param loader: The yaml loader
-            :type loader: class: `yaml.Loader`
-            :param node: The current node in the yaml
-            :type node: class: `yaml.Node`S
-            :param pattern: The pattern in which to look for the environment variable .
-                For ex. host: !ENV ${HOST}. The pattern here being `${ }`
-            :type pattern: class: `re.Pattern`
-            :return: a commander instance with the parsed string that contains the value of the environment
-                variable
-            :rtype: class: `commander.Commander`
-            """
-            loader.add_implicit_resolver(env_tag, env_pattern, None)
-
-            value = loader.construct_scalar(node)
-            match = env_pattern.findall(value)  # to find all env variables in line
-
-            if match:
-                full_value = value
-                for g in match:
-                    full_value = full_value.replace(f"${{{g}}}", os.environ.get(g, g))
-
-                return full_value
-            return value
-
-        def construct_arguments(loader: yaml.Loader, node: yaml.Node):
-            """Converts nodes with `!arg` tag to object of :class: `click.Argument`.
-            Passes the value associated with the node as arguments to the click.Argument constructor.
-
-            :param loader: The yaml loader
-            :type loader: class: `yaml.Loader`
-            :param node: The current node in the yaml
-            :type node: class: `yaml.Node`
-            :return: an instance of click Argument
-            :rtype: class: `click.Argument`
-            """
-            value = loader.construct_mapping(node, deep=True)
-            return click.Argument(**value)
-
-        def construct_options(loader: yaml.Loader, node: yaml.Node):
-            """Converts nodes with `!opt` tag to object of :class: `click.Option`.
-            Passes the value associated with the node as arguments to the click.Option constructor.
-
-            :param loader: The yaml loader
-            :type loader: class: `yaml.Loader`
-            :param node: The current node in the yaml
-            :type node: class: `yaml.Node`
-            :return: an instance of click Option
-            :rtype: class: `click.Option`
-            """
-            value = loader.construct_mapping(node, deep=True)
-            return click.Option(**value)
-
-        def construct_objects(loader: yaml.Loader, node: yaml.Node):
-            """Converts nodes with `!obj` tag to object of specified class.
-
-            :param loader: The yaml loader
-            :type loader: class: `yaml.Loader`
-            :param node: The current node in the yaml
-            :type node: class: `yaml.Node`
-            :return: returns an object of type defined in the yaml node
-            :rtype: `Any`
-            """
-            values = loader.construct_mapping(node)
-            mdl_cls = values.pop("class").split(".")
-            module = mdl_cls[0]
-            my_cls = mdl_cls[1]
-            return getattr(sys.modules[module], my_cls)(**values)
-
-        loader.add_constructor("!ENV", construct_env_vars)
-        loader.add_constructor("!obj", construct_objects)
-        loader.add_constructor("!arg", construct_arguments)
-        loader.add_constructor("!opt", construct_options)
-
-        if path:
-            with open(path) as conf_data:
-                parsed_yaml = yaml.load(conf_data, Loader=loader)
-                return cls(parsed_yaml)
-        elif data:
-            parsed_yaml = yaml.load(data, Loader=loader)
-            return cls(parsed_yaml)
-        else:
-            raise ValueError("Either a path or data should be defined as input")
-
-    def get_command(self, command_name, callback=None):
-        command_dict = self.parsed_yaml[command_name]
-
-        script = command_dict.pop("script") if "script" in command_dict else None
-
-        params_in_order = [value.human_readable_name for value in command_dict["params"]]
-
-        command = click.Command(
-            name=command_name, **self.parsed_yaml[command_name]
+    def __post_init__(self) -> None:
+        self.script = (
+            self.parsed_yaml.pop("script") if "script" in self.parsed_yaml else ""
+        )
+        self._callback = (
+            self.__default_callback__ if not self._callback else self._callback
+        )
+        self._command = click.Command(
+            name=self.name, callback=self._callback, **self.parsed_yaml
         )
 
-        def default_callback(**kwargs):
-            from subprocess import Popen
+    def __default_callback__(self, **kwargs) -> None:
+        """The default callback assigned to the click command."""
+        script_parms = self.script.split()
+        params_in_order = [kwargs[value.human_readable_name.lower()] for value in self.parsed_yaml["params"]]
 
-            args = [kwargs[key.lower()] for key in params_in_order]
+        Popen(script_parms + params_in_order, text=True)
 
-            Popen(script.split() + args, text=True)
+    @property
+    def command(self):
+        """The click Command created out of the yaml. Uses the default callback
+        or the callback assigned to the commander object.
 
-        if not callback:
-            command.callback = default_callback
+        :return: Click command created from the yaml file.
+        :rtype: class: click.Command
+        """
+        self._command = click.Command(
+            name=self.name, callback=self._callback, **self.parsed_yaml
+        )
+        return self._command
+
+    @property
+    def callback(self):
+        """Callback to be linked to the click Command.
+
+        :return: The callback linked to the click command
+        :rtype: Callable
+        """
+        return self._callback
+
+    @callback.setter
+    def callback(self, value):
+        if callable(value):
+            self._callback = value
+            self.command.callback = value
         else:
-            command.callback = callback
-
-        return (command, script)
+            raise TypeError("'value' needs to be a function/lambda")

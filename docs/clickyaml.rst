@@ -4,6 +4,14 @@ clickyaml package
 Submodules
 ----------
 
+clickyaml.clickyaml module
+--------------------------
+
+.. automodule:: clickyaml.clickyaml
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 clickyaml.commander module
 --------------------------
 

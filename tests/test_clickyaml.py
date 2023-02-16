@@ -6,7 +6,7 @@ import pytest
 
 from click.testing import CliRunner
 
-from clickyaml import commander
+from clickyaml import commander, clickyaml
 
 @pytest.fixture
 def yaml_str():
@@ -15,34 +15,33 @@ def yaml_str():
     See more at: http://doc.pytest.org/en/latest/fixture.html
     """
     yaml_str = """
-    commands:
-        simplecommand:
-            script: "/home/user/scripts/simplecommand.bash"
-            params:
-                - !arg
-                    param_decls: [argument]
-                - !opt
-                    param_decls: ["--option"]
+    simplecommand:
+        script: "echo $1;echo $2"
+        params:
+            - !arg
+                param_decls: [argument]
+            - !opt
+                param_decls: ["--option"]
 
-        complexcommand:
-            script: "/home/user/scripts/complexcommand.bash"
-            help: "Complex Command"
-            params:
-                - !arg
-                    param_decls: [id]
-                - !arg
-                    param_decls: [type]
-                - !arg
-                    param_decls: [category]
-                    type: !obj
-                        class: click.Choice
-                        choices: ["1","2","3","ALL"]
-                        case_sensitive: False
-                - !opt
-                    param_decls: ["--email","-E"]
-                    multiple: True
-                    envvar: MY_EMAIL
-                    help: "Specify the mailing list with this option"
+    complexcommand:
+        script: "echo$1;echo$2;echo$3;echo$4"
+        help: "Complex Command"
+        params:
+            - !arg
+                param_decls: [id]
+            - !arg
+                param_decls: [type]
+            - !arg
+                param_decls: [category]
+                type: !obj
+                    class: click.Choice
+                    choices: ["1","2","3","ALL"]
+                    case_sensitive: False
+            - !opt
+                param_decls: ["--email","-E"]
+                multiple: True
+                envvar: MY_EMAIL
+                help: "Specify the mailing list with this option"
     """
 
     return yaml_str
@@ -59,39 +58,64 @@ def test_content():
 
 def test_parse_yaml(yaml_str):
     """Test parse_pyaml"""
-    # parsed = clickyaml.parse_yaml('/mnt/c/Users/vgoel9/OneDrive - UHG/Rules/Special/clickyaml/tests/commands.yaml')
-    # assert "commands" in parsed.keys()
-    # assert isinstance(parsed["commands"], dict)
 
-    cmdr = commander.Commander.create_commander(data=yaml_str)
+    parsed_yaml = clickyaml.parse_yaml(data=yaml_str)
+    assert "simplecommand" in parsed_yaml.keys() and "complexcommand" in parsed_yaml.keys()
 
-    assert all(isinstance(key, str) for key in cmdr.parsed_yaml.keys())
-    assert all(isinstance(value, dict) for value in cmdr.parsed_yaml.values())
-    assert "simplecommand" in cmdr.parsed_yaml
-    assert "complexcommand" in cmdr.parsed_yaml
-    assert "script" in cmdr.parsed_yaml["simplecommand"]
-    assert "script" in cmdr.parsed_yaml["complexcommand"]
-    assert "help" not in cmdr.parsed_yaml["simplecommand"]
-    assert "help" in cmdr.parsed_yaml["complexcommand"]
-    assert "params" in cmdr.parsed_yaml["simplecommand"]
-    assert "params" in cmdr.parsed_yaml["complexcommand"]
+    assert "script" in parsed_yaml["simplecommand"].keys() and "params" in parsed_yaml["simplecommand"].keys()
+    assert "script" in parsed_yaml["complexcommand"].keys() and "params" in parsed_yaml["complexcommand"].keys() and "help" in parsed_yaml["complexcommand"].keys()
+
+    simp_params = list(parsed_yaml["simplecommand"]["params"])
+    simp_param_count = len(simp_params)
+
+    comp_params = list(parsed_yaml["complexcommand"]["params"])
+    comp_params_count = len(comp_params)
+
+    assert simp_param_count == 2
+    assert comp_params_count == 4
+
 
 def test_get_command(yaml_str):
 
-    cmdr = commander.Commander.create_commander(data=yaml_str)
-
-    command1, script1 = cmdr.get_command("simplecommand", lambda **kwargs : print("Simple Command"))
-    command2, script2 = cmdr.get_command("complexcommand", lambda **kwargs : print("Complex Command"))
-    assert "simplecommand" == command1.name
-    assert "complexcommand" == command2.name
-    assert "simplecommand.bash" in script1
-    assert "complexcommand.bash" in script2
+    parsed = clickyaml.parse_yaml(data=yaml_str)
+    simp = clickyaml.get_command("simplecommand",parsed_yaml=parsed, callback=lambda **kwargs: print(kwargs))
+    comp = clickyaml.get_command("complexcommand",parsed_yaml=parsed,callback=lambda **kwargs: print(kwargs))
 
     runner = CliRunner()
-    result = runner.invoke(command1, ["arg", "--option=opt"])
-    assert "Simple" in result.output
+
+    result = runner.invoke(simp, ["arg", "--option=opt"])
+    assert "arg" in result.output
+    assert "opt" in result.output
     assert result.exit_code == 0
 
-    result = runner.invoke(command2, ["id", "type", "all","--email=test@test.com"])
-    assert "Complex" in result.output
+    result = runner.invoke(comp, ["id", "type", "all","--email=test@test.com"])
+    assert "id" in result.output
+    assert "type" in result.output
+    assert "ALL" in result.output
+    assert "test@test.com" in result.output
+    assert result.exit_code == 0
+
+
+def test_get_commands(yaml_str):
+
+    commands = clickyaml.get_commands(yaml_str)
+
+    simp = commands["simplecommand"]
+    comp = commands["complexcommand"]
+
+    simp.callback = lambda **kwargs: print(kwargs)
+    comp.callback = lambda **kwargs: print(kwargs)
+
+    runner = CliRunner()
+
+    result = runner.invoke(simp, ["arg", "--option=opt"])
+    assert "arg" in result.output
+    assert "opt" in result.output
+    assert result.exit_code == 0
+
+    result = runner.invoke(comp, ["id", "type", "all","--email=test@test.com"])
+    assert "id" in result.output
+    assert "type" in result.output
+    assert "ALL" in result.output
+    assert "test@test.com" in result.output
     assert result.exit_code == 0
