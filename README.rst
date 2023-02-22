@@ -77,8 +77,8 @@ There are two ways to get the commands from yaml data as **click.Command** objec
 1. Using get_command()
 2. Using get_commands()
 
-get_commnd()
-^^^^^^^^^^^^
+Get specific commands from the yaml file
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
@@ -92,6 +92,20 @@ get_commnd()
     #this command has custom callback that prints the passed arguments
     cstm_clbk = lambda **kwargs: print(kwargs)
     command_custom = get_command(name="simplecommand",parsed_yaml=parsed_yaml,callback=cstm_clbk)
+
+Get all the commands yaml file in a dictionary
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+*all the commands will be assigned the default callback*
+
+.. code-block:: python
+
+    from clickyaml import get_commands
+
+    commands = get_commands(yaml=yaml_data) # returns all the commands in a dictionary
+
+    simplecommand = Commands["simplecommand"]
+    complexcommand = Commands["complexcommand"]
 
 
 Credits
