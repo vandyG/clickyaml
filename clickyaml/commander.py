@@ -26,13 +26,15 @@ class Commander:
 
     def __post_init__(self) -> None:
         self.script = (
-            self.parsed_yaml.pop("script") if "script" in self.parsed_yaml else ""
+            self.parsed_yaml.get("script", "")
         )
         self._callback = (
             self.__default_callback__ if not self._callback else self._callback
         )
+
+        self.command_args = {key: self.parsed_yaml[key] for key in self.parsed_yaml.keys()-["script"]}
         self._command = click.Command(
-            name=self.name, callback=self._callback, **self.parsed_yaml
+            name=self.name, callback=self._callback, **self.command_args
         )
 
     def __default_callback__(self, **kwargs) -> None:
@@ -51,7 +53,7 @@ class Commander:
         :rtype: class: click.Command
         """
         self._command = click.Command(
-            name=self.name, callback=self._callback, **self.parsed_yaml
+            name=self.name, callback=self._callback, **self.command_args
         )
         return self._command
 
