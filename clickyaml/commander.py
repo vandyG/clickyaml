@@ -25,14 +25,14 @@ class Commander:
     _command: click.Command = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        self.script = (
-            self.parsed_yaml.get("script", "")
-        )
+        self.script = self.parsed_yaml.get("script", "")
         self._callback = (
             self.__default_callback__ if not self._callback else self._callback
         )
 
-        self.command_args = {key: self.parsed_yaml[key] for key in self.parsed_yaml.keys()-["script"]}
+        self.command_args = {
+            key: self.parsed_yaml[key] for key in self.parsed_yaml.keys() - ["script"]
+        }
         self._command = click.Command(
             name=self.name, callback=self._callback, **self.command_args
         )
@@ -40,7 +40,10 @@ class Commander:
     def __default_callback__(self, **kwargs) -> None:
         """The default callback assigned to the click command."""
         script_parms = self.script.split()
-        params_in_order = [kwargs[value.human_readable_name.lower()] for value in self.parsed_yaml["params"]]
+        params_in_order = [
+            kwargs[value.human_readable_name.lower()]
+            for value in self.parsed_yaml["params"]
+        ]
 
         Popen(script_parms + params_in_order, text=True)
 

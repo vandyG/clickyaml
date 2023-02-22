@@ -127,9 +127,7 @@ def construct_objects(loader: yaml.Loader, node: yaml.MappingNode):
     return getattr(sys.modules[module], my_cls)(**values)
 
 
-def parse_yaml(
-    path = None, data = None
-) -> dict:
+def parse_yaml(path=None, data=None) -> dict:
     """Parses a yaml files and loads it into a python dictionary
 
     It can deal with 4 types of tags:
@@ -165,9 +163,7 @@ def parse_yaml(
         raise ValueError("Either a path or data should be defined as input")
 
 
-def get_command(
-    name: str, parsed_yaml: dict, callback = None
-) -> click.Command:
+def get_command(name: str, parsed_yaml: dict, callback=None) -> click.Command:
     """Returns the desired command from the yaml file
 
     It has the ability to assign custom callbacks to the command. If a callback is
@@ -207,7 +203,7 @@ def get_commands(yaml: str) -> dict:
     """
 
     try:
-        is_file =  Path(yaml).is_file()
+        is_file = Path(yaml).is_file()
     except OSError as oserror:
         if oserror.errno == errno.ENAMETOOLONG:
             is_file = False
