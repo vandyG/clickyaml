@@ -59,7 +59,14 @@ class Commander:
 
     @property
     def callback(self):
-        """Callback to be linked to the click Command.
+        """
+        .. _callback:
+
+        Callback to be linked to the click Command.
+
+        If no callback is passed, the command is passed a default callback.
+        The default callback runs the script associated with the command and
+        passes the arguments in the order they are defined in the yaml file.
 
         :return: The callback linked to the click command
         :rtype: Callable

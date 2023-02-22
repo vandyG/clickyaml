@@ -170,6 +170,14 @@ def get_command(
 ) -> click.Command:
     """Returns the desired command from the yaml file
 
+    It has the ability to assign custom callbacks to the command. If a callback is
+    not passed a default callback is assigned. The default callback runs the script
+    associated with the command.
+
+    .. seealso::
+
+        The :ref:`callback <callback>` property of Commander class.
+
     :param name: Name of the command.
     :type name: str
     :param parsed_yaml: Dictionary from the parsed yaml of the command.
@@ -190,6 +198,13 @@ def get_command(
 
 
 def get_commands(yaml: str) -> dict:
+    """Returns all the commands from the yaml data in a python dictionary
+
+    :param yaml: The yaml data, this can be path to a file or a string
+    :type yaml: str
+    :return: A dictionary of click Commands
+    :rtype: dict
+    """
 
     try:
         is_file =  Path(yaml).is_file()
