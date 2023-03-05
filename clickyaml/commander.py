@@ -10,11 +10,6 @@ class Commander:
     """Commander class takes in a parsed yaml and creates commands out of it.
     The *parsed_yaml* needs to be a dictionary of commands, and the *name* parameter
     is used to fetch the required information for the command.
-
-    :param name:
-    :type name: str
-    :param parsed_yaml:
-    :type parsed_yaml: dict
     """
 
     name: str #: Name of the command to create. It's value is used to fetch the parameters out of the parsed yaml and is also used to create a command of the same *name*
