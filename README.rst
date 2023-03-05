@@ -23,8 +23,6 @@ ClickYaml reads a `.yaml` file and creates click Commands out of it.
 Installation
 ------------
 
-.. highlight:: shell
-
 Stable release
 ^^^^^^^^^^^^^^
 
