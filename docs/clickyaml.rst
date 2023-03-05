@@ -1,9 +1,6 @@
 clickyaml package
 =================
 
-Submodules
-----------
-
 clickyaml.clickyaml module
 --------------------------
 
