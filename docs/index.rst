@@ -6,7 +6,6 @@ Welcome to clickYaml's documentation!
    :caption: Contents:
 
    readme
-   usage
    modules
    contributing
    authors
