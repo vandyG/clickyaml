@@ -69,7 +69,7 @@ coverage: ## check code coverage quickly with the default Python
 docs: ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/clickyaml.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ clickyaml
+	sphinx-build docs/ docs/_build/
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
