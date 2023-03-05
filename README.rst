@@ -145,7 +145,7 @@ Get all the Commander objects yaml file in a dictionary
 
 .. code-block:: python
 
-    from clickyaml import get_commands
+    from clickyaml import get_commanders
 
     commanders = get_commanders(yaml=yaml_data) # returns all the commands in a dictionary
 
