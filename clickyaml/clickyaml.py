@@ -14,21 +14,17 @@ ENV_PATTERN = re.compile(".*?\\${(\\w+)}.*?")
 
 
 def construct_env_vars(loader: yaml.Loader, node: yaml.ScalarNode):
-    """Extracts the environment variable from the node's value
+    """Extracts the environment variable from the node's value.
 
     :param loader: The yaml loader
-    :type loader: class: `yaml.Loader`
+    :type loader: yaml.Loader
     :param node: The current node in the yaml
-    :type node: class: `yaml.Node`
-    :param pattern: Pattern for string env vars.
-    :type pattern: class: `re.Pattern`
+    :type node: yaml.ScalarNode
     :return: A Scalar Node with the pattern replaced by environment variables
-    :rtype: class: `yaml.ScalarNode`
+    :rtype: yaml.ScalarNode
 
-    :Example:
     For a node ``host: !ENV ${HOST}`` replaces the ``${ ... }`` with the value
     stored in the environment variable `HOST`
-
     """
 
     value = loader.construct_scalar(node)
@@ -45,18 +41,19 @@ def construct_env_vars(loader: yaml.Loader, node: yaml.ScalarNode):
 
 
 def construct_arguments(loader: yaml.Loader, node: yaml.MappingNode):
-    """Converts nodes with `!arg` tag to object of :class: `click.Argument`.
+    """Converts nodes with `!arg` tag to object of :py:class:`click.Argument`.
 
     Passes the value associated with the node as arguments to the click.Argument constructor.
 
     :param loader: The yaml loader
-    :type loader: class: `yaml.Loader`
+    :type loader: yaml.Loader
     :param node: The current node in the yaml
-    :type node: class: `yaml.Node`
+    :type node: yaml.Node
     :return: an instance of click Argument
-    :rtype: class: `click.Argument`
+    :rtype: click.Argument
 
     :Example:
+
     .. code-block:: yaml
 
         !arg
@@ -70,25 +67,23 @@ def construct_arguments(loader: yaml.Loader, node: yaml.MappingNode):
 
 
 def construct_options(loader: yaml.Loader, node: yaml.MappingNode):
-    """Converts nodes with `!opt` tag to object of :class: `click.Option`.
-
-    Passes the value associated with the node as arguments to the click.Option constructor.
+    """Converts nodes with `!opt` tag to object of :py:class:`click.Option`.
 
     :param loader: The yaml loader
-    :type loader: class: `yaml.Loader`
+    :type loader: yaml.Loader
     :param node: The current node in the yaml
-    :type node: class: `yaml.Node`
+    :type node: yaml.Node
     :return: an instance of click Option
-    :rtype: class: `click.Option`
+    :rtype: click.Option
 
     :Example:
+
     .. code-block:: yaml
 
         !opt
-            param_decls: ["--type","-t"]
+            param_decls: ["--type", "-t"]
 
     This will be converted to ``click.Option(param_decls = ["--type","-t"])``
-
     """
 
     value = loader.construct_mapping(node, deep=True)
@@ -103,13 +98,14 @@ def construct_objects(loader: yaml.Loader, node: yaml.MappingNode):
     to the object at runtime.
 
     :param loader: The yaml loader
-    :type loader: class: `yaml.Loader`
+    :type loader: yaml.Loader
     :param node: The current node in the yaml
-    :type node: class: `yaml.Node`
+    :type node: yaml.Node
     :return: returns an object of type defined in the yaml node
-    :rtype: `Any`
+    :rtype: Any
 
     :Example:
+
     .. code-block:: yaml
 
         type: !obj
@@ -119,6 +115,7 @@ def construct_objects(loader: yaml.Loader, node: yaml.MappingNode):
 
     This will be converted to ``click.Choice(choices = ["1","2","3","ALL"], case_sensitive = False)``
     """
+
     values = loader.construct_mapping(node)
     mdl_cls = values.pop("class").split(".")
     module = mdl_cls[0]
@@ -194,12 +191,12 @@ def get_command(name: str, parsed_yaml: dict, callback=None) -> click.Command:
 
 
 def get_commanders(yaml: str) -> dict:
-    """Returns all the commands from the yaml data in a python dictionary
+    """Returns all the :py:class:`Commander <clickyaml.commander.Commander>` objects from the yaml data in a python dictionary
 
     :param yaml: The yaml data, this can be path to a file or a string
     :type yaml: str
-    :return: A dictionary of click Commands
-    :rtype: dict
+    :return: A dictionary of Commander objects
+    :rtype: dict[str, Commander]
     """
 
     try:
