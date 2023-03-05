@@ -96,9 +96,9 @@ def test_get_command(yaml_str):
     assert result.exit_code == 0
 
 
-def test_get_commands(yaml_str):
+def test_get_commanders(yaml_str):
 
-    commands = clickyaml.get_commands(yaml_str)
+    commands = clickyaml.get_commanders(yaml_str)
 
     simp = commands["simplecommand"]
     comp = commands["complexcommand"]
@@ -108,14 +108,38 @@ def test_get_commands(yaml_str):
 
     runner = CliRunner()
 
-    result = runner.invoke(simp, ["arg", "--option=opt"])
+    result = runner.invoke(simp.command, ["arg", "--option=opt"])
     assert "arg" in result.output
     assert "opt" in result.output
     assert result.exit_code == 0
 
-    result = runner.invoke(comp, ["id", "type", "all","--email=test@test.com"])
+    result = runner.invoke(comp.command, ["id", "type", "all","--email=test@test.com"])
     assert "id" in result.output
     assert "type" in result.output
     assert "ALL" in result.output
     assert "test@test.com" in result.output
     assert result.exit_code == 0
+
+def main():
+
+    yaml = """
+    simplecommand:
+        script: "echo $1;echo $2"
+        params:
+            - !arg
+                param_decls: [argument]
+            - !opt
+                param_decls: ["--option"]
+    """
+
+    commands = clickyaml.get_commands(yaml)
+
+    simp = commands["simplecommand"]
+    runner = CliRunner()
+    result = runner.invoke(simp, ["arg", "--option=opt"])
+    result2 = runner.invoke(simp, ["--help"])
+    print(result.output)
+    print(result2.output)
+
+if __name__ == "__main__":
+    main()

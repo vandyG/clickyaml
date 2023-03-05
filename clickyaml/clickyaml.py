@@ -193,7 +193,7 @@ def get_command(name: str, parsed_yaml: dict, callback=None) -> click.Command:
     return cmdr.command
 
 
-def get_commands(yaml: str) -> dict:
+def get_commanders(yaml: str) -> dict:
     """Returns all the commands from the yaml data in a python dictionary
 
     :param yaml: The yaml data, this can be path to a file or a string
@@ -213,10 +213,10 @@ def get_commands(yaml: str) -> dict:
     else:
         parsed_yaml = parse_yaml(data=yaml)
 
-    commands = {}
+    commanders = {}
 
-    for command, params in parsed_yaml.items():
-        cmdr = Commander(name=command, parsed_yaml=params)
-        commands[command] = cmdr.command
+    for commander, params in parsed_yaml.items():
+        cmdr = Commander(name=commander, parsed_yaml=params)
+        commanders[commander] = cmdr
 
-    return commands
+    return commanders
